@@ -11,7 +11,7 @@ from google.genai import types
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("dental_transcriptor")
 
-app = FastAPI(title="Dental Transcriptor")
+app = FastAPI(title="DentiVoice")
 MAX_AUDIO_BYTES = 25 * 1024 * 1024
 
 @app.get("/", response_class=HTMLResponse)
@@ -19,9 +19,9 @@ async def home():
     with open("index.html", "r", encoding="utf-8") as page:
         return page.read()
 
-@app.get("/logo-july.png")
-async def logo():
-    return FileResponse("logo-july.png", media_type="image/png")
+@app.get("/favicon.svg")
+async def favicon():
+    return FileResponse("favicon.svg", media_type="image/svg+xml")
 
 @app.get("/health")
 async def health():
