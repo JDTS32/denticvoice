@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DentiVoice</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg?v=1">
+<meta name="theme-color" content="#0B538C">
+<style>
+:root{
+  --ink:#0B538C;
+  --muted:#617B8A;
+  --teal:#1793B3;
+  --teal-dark:#0B538C;
+  --mint:#EAF9F9;
+  --mint-2:#D5F2F1;
+  --line:#D9EDEF;
+  --bg:#FFFFFF;
+  --rec:#e5484d;
+  font-family:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color:var(--ink);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;
+  background:
+    radial-gradient(900px 400px at 85% -10%,#DDF7F5 0%,transparent 60%),
+    radial-gradient(700px 400px at -10% 10%,#E8F5FC 0%,transparent 55%),
+    var(--bg);
+}
+main{max-width:780px;margin:0 auto;padding:40px 16px 56px}
+header{display:flex;align-items:center;gap:16px;margin-bottom:28px}
+.help-button{margin-left:auto;white-space:nowrap;padding:10px 14px;background:#fff;border:1px solid var(--line);color:var(--teal-dark);font-size:13px}
+.manual-dialog{width:min(620px,calc(100% - 28px));max-height:min(82vh,760px);padding:0;border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 80px #062c4660;color:var(--ink)}
+.manual-dialog::backdrop{background:#062c4680;backdrop-filter:blur(3px)}
+.manual-dialog-header{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;background:#fff;border-bottom:1px solid var(--line)}
+.manual-dialog-header h2{margin:0;font-size:18px}
+.manual-dialog-header h2::before{display:none}
+.manual-close{padding:7px 11px;background:var(--mint);color:var(--teal-dark);font-size:20px;line-height:1}
+.manual-dialog .manual-content{padding:8px 22px 24px;overflow-y:auto}
+.logo{
+  width:60px;height:60px;flex:none;display:grid;place-items:center;
+}
+.logo img{display:block;width:100%;height:100%;object-fit:contain}
+.tag{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--teal-dark);font-weight:700}
+h1{font-size:34px;letter-spacing:-.03em;margin:2px 0 0;line-height:1.1}
+h1 span{color:var(--teal)}
+.intro{color:var(--muted);line-height:1.6;margin:0}
+.lead{margin:0 0 22px;color:var(--muted);line-height:1.6;max-width:620px}
+.panel{
+  background:#fff;border:1px solid var(--line);border-radius:24px;padding:28px;
+  box-shadow:0 18px 50px #0B538C12;
+}
+.recorder{
+  display:flex;align-items:center;gap:18px;flex-wrap:wrap;
+  background:var(--mint);border:1px solid var(--mint-2);border-radius:18px;padding:18px 20px;
+}
+.mic{
+  width:52px;height:52px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:#fff;color:var(--teal);border:1px solid var(--mint-2);position:relative;
+}
+.mic svg{width:24px;height:24px;fill:currentColor}
+.recorder.recording .mic{background:var(--rec);color:#fff;border-color:var(--rec)}
+.recorder.recording .mic::after{
+  content:"";position:absolute;inset:-6px;border-radius:50%;
+  border:2px solid var(--rec);opacity:.5;animation:pulse 1.4s ease-out infinite;
+}
+@keyframes pulse{from{transform:scale(.9);opacity:.6}to{transform:scale(1.35);opacity:0}}
+.info{flex:1;min-width:150px}
+.info strong{display:block;font-size:16px}
+.info .intro{font-size:13.5px}
+.timer-wrap{text-align:right;min-width:92px}
+.timer{font-size:30px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.02em;color:var(--teal-dark)}
+.timer-note{display:block;margin-top:2px;font-size:11px;color:var(--muted);white-space:nowrap}
+.recorder.recording .timer{color:var(--rec)}
+.limit{height:5px;background:#eaf3f2;border-radius:99px;overflow:hidden;margin:14px 2px 0}
+.limit-fill{height:100%;width:0;background:var(--teal);border-radius:99px;transition:width .2s linear}
+.limit-label{font-size:11px;color:var(--muted);text-align:right;margin:5px 2px 0}
+.recorder.recording~.limit .limit-fill{background:var(--rec)}
+.secondary.ready{background:linear-gradient(135deg,#1793B3,#29C2C2);color:#fff;box-shadow:0 6px 16px #1793B338}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+button{
+  border:0;border-radius:12px;padding:12px 18px;font:inherit;font-weight:650;cursor:pointer;
+  transition:transform .12s,box-shadow .12s,background .12s;
+}
+button:hover:not(:disabled){transform:translateY(-1px)}
+button:focus-visible{outline:3px solid #29C2C255;outline-offset:2px}
+button:disabled{opacity:.4;cursor:not-allowed}
+.primary{background:linear-gradient(135deg,#1793B3,#29C2C2);color:#fff;box-shadow:0 6px 16px #1793B338}
+.secondary{background:var(--mint);color:var(--teal-dark)}
+.danger{background:#fff0f0;color:#b42318}
+#status{min-height:24px;margin-top:16px;color:var(--muted);font-size:14px;line-height:1.5}
+.error{color:#b42318!important}.success{color:#12805c!important}
+h2{font-size:17px;margin:30px 0 10px;display:flex;align-items:center;gap:8px}
+h2::before{content:"";width:4px;height:18px;border-radius:2px;background:var(--teal)}
+textarea{
+  width:100%;min-height:260px;padding:18px;border:1px solid var(--line);border-radius:16px;
+  font-family:inherit;font-size:15px;line-height:1.7;resize:vertical;color:var(--ink);background:#fbfefe;
+}
+textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 4px #29C2C21F}
+.privacy{font-size:12px;margin:20px 4px 0;color:var(--muted);line-height:1.6}
+.manual{margin-top:18px;border:1px solid var(--line);border-radius:18px;background:#fff;box-shadow:0 10px 30px #0B538C0A;overflow:hidden}
+.manual summary{list-style:none;cursor:pointer;padding:18px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:700;color:var(--ink)}
+.manual summary::-webkit-details-marker{display:none}
+.manual summary::after{content:"＋";font-size:20px;color:var(--teal);font-weight:500}
+.manual[open] summary::after{content:"−"}
+.manual-content{padding:0 20px 20px;color:var(--muted);font-size:14px;line-height:1.65}
+.manual-content h3{font-size:14px;color:var(--ink);margin:18px 0 5px}
+.manual-content p{margin:5px 0}
+.manual-content ol{padding-left:21px;margin:8px 0}
+.manual-content li{padding-left:4px;margin:7px 0}
+.manual-tip{background:var(--mint);border:1px solid var(--mint-2);border-radius:12px;padding:12px 14px;margin-top:14px;color:var(--teal-dark)}
+.sheet-link{display:inline-flex;align-items:center;gap:8px;margin-top:10px;padding:10px 14px;border:1px solid var(--mint-2);border-radius:10px;background:var(--mint);color:var(--teal-dark);font-weight:700;text-decoration:none}
+.sheet-link:hover{background:var(--mint-2);text-decoration:underline}
+.sheet-link:focus-visible{outline:3px solid #29C2C255;outline-offset:2px}
+.credit{margin:30px 0 0;text-align:center;font-size:11px;letter-spacing:.04em;color:#8aa1a5}
+@media(max-width:520px){
+  main{padding-top:24px}.panel{padding:18px}h1{font-size:28px}
+  .logo{width:52px;height:52px}
+}
+@media(prefers-reduced-motion:reduce){.recorder.recording .mic::after{animation:none}}
+</style>
+</head>
+<body><main>
+<header>
+  <div class="logo"><img src="/favicon.svg" alt="Logo DentiVoice"></div>
+  <div>
+    <div class="tag">Transcripción odontológica</div>
+    <h1>Denti<span>Voice</span></h1>
+  </div>
+  <button class="help-button" id="openManual" type="button">? Manual de uso</button>
+</header>
+<p class="lead">Graba el dictado de la consulta y obtén una transcripción editable. El texto no se convierte en una historia clínica ni se complementa con información adicional.</p>
+
+<section class="panel">
+  <div class="recorder" id="recorder">
+    <div class="mic" aria-hidden="true">
+      <svg viewBox="0 0 24 24"><path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2z"/></svg>
+    </div>
+    <div class="info">
+      <strong id="recordTitle">Listo para grabar</strong>
+      <div class="intro" id="recordSub">Usa el micrófono de tu dispositivo</div>
+    </div>
+    <div class="timer-wrap">
+      <div class="timer" id="timer">00:00</div>
+      <small class="timer-note">Máximo 10:00</small>
+    </div>
+  </div>
+  <div class="limit" aria-hidden="true"><div class="limit-fill" id="durationBar"></div></div>
+  <div class="limit-label" id="remaining">10:00 disponibles</div>
+  <div class="actions">
+    <button class="primary" id="record">● Iniciar grabación</button>
+    <button class="secondary" id="stop" disabled>Detener</button>
+    <button class="danger" id="discard" disabled>Descartar</button>
+  </div>
+  <div id="status" role="status" aria-live="polite">La grabación se enviará para transcripción cuando pulses “Transcribir audio”.</div>
+  <div class="actions" style="margin-top:6px"><button class="secondary" id="send" disabled>Transcribir audio</button></div>
+
+  <h2>Transcripción</h2>
+  <textarea id="transcript" placeholder="Aquí aparecerá la transcripción. Podrás revisarla y editarla antes de copiarla."></textarea>
+  <div class="actions transcript-actions"><button class="secondary" id="copy" disabled>Copiar transcripción</button><button class="primary" id="saveSheets" disabled>Guardar en Google Sheets</button></div>
+  <p class="privacy" style="margin-top:10px">Al guardar, la transcripción se conservará en la hoja de Google Sheets vinculada para consultarla desde el computador.</p>
+</section>
+
+<dialog class="manual-dialog" id="manualDialog" aria-labelledby="manualTitle">
+  <div class="manual-dialog-header">
+    <h2 id="manualTitle">Manual de uso de DentiVoice</h2>
+    <button class="manual-close" id="closeManual" type="button" aria-label="Cerrar manual">×</button>
+  </div>
+  <div class="manual-content">
+    <p>DentiVoice convierte el dictado de voz del profesional en una transcripción editable. No redacta ni completa una historia clínica.</p>
+    <h3>Cómo realizar un dictado</h3>
+    <ol>
+      <li>Permite el acceso al micrófono cuando el navegador lo solicite. Puedes usar un celular o un computador.</li>
+      <li>Pulsa <strong>Iniciar grabación</strong> y dicta con claridad. La duración máxima es de 10 minutos.</li>
+      <li>Cuando termines, pulsa <strong>Detener</strong>. Si no deseas conservar esa grabación, pulsa <strong>Descartar</strong>.</li>
+      <li>Pulsa <strong>Transcribir audio</strong> y espera a que aparezca el texto.</li>
+      <li>Lee y corrige la transcripción en el recuadro. Verifica especialmente nombres, medicamentos, procedimientos y números de dientes.</li>
+    </ol>
+    <h3>Cómo usar la transcripción</h3>
+    <p><strong>Copiar transcripción:</strong> copia el texto editado para pegarlo en el sistema de historia clínica que utilice el consultorio.</p>
+    <p><strong>Guardar en Google Sheets:</strong> envía el texto editado a la hoja vinculada. Cada guardado crea una nueva fila en la pestaña «Dictados».</p>
+    <h3>Consultar dictados desde otro dispositivo</h3>
+    <p>Si grabas desde el celular, pulsa «Guardar en Google Sheets». Después abre la misma hoja de cálculo desde el computador con la cuenta autorizada para consultarla. No necesitas emparejar los dispositivos. El enlace a la hoja de Google Sheets se configurará cuando se cree la hoja exclusiva de DentiVoice. </p>
+    <h3>Recomendaciones</h3>
+    <ul>
+      <li>Habla a un ritmo natural y procura reducir el ruido de fondo.</li>
+      <li>Revisa siempre el texto antes de copiarlo o guardarlo. La transcripción puede contener errores.</li>
+      <li>Si el texto queda incompleto o incorrecto, edítalo antes de guardarlo o realiza un nuevo dictado.</li>
+      <li>Descartar elimina la grabación de la sesión actual; no elimina filas que ya hayas guardado en Google Sheets.</li>
+    </ul>
+    <div class="manual-tip"><strong>Importante:</strong> el audio se procesa mediante el proveedor de transcripción. La aplicación no conserva un historial propio, pero las transcripciones que guardes sí permanecen en Google Sheets hasta que alguien autorizado las elimine. Mantén la hoja privada y sigue las políticas de protección de datos del consultorio.</div>
+  </div>
+</details>
+
+<p class="privacy">Privacidad: DentiVoice no mantiene un historial propio de grabaciones ni transcripciones. El audio se envía al proveedor de transcripción para procesarlo. Si guardas el texto, se almacena en la hoja de Google Sheets vinculada. Antes de usarla con información identificable de pacientes, verifica las condiciones de tratamiento y protección de datos del proveedor y los requisitos aplicables a tu consultorio.</p>
+<p class="credit">Desarrollado por JDTS · 2026</p>
+</main>
+<script>
+const el=id=>document.getElementById(id);
+let recorder=null,stream=null,chunks=[],blob=null,start=0,tick=null;
+function status(message,type=""){el("status").textContent=message;el("status").className=type}
+function stopTracks(){if(stream)stream.getTracks().forEach(t=>t.stop());stream=null}
+function fmt(ms){let s=Math.floor(ms/1000);return String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0")}
+function stopTimer(){if(tick){clearInterval(tick);tick=null}}
+function reset(){
+  stopTimer();stopTracks();recorder=null;chunks=[];blob=null;
+  el("timer").textContent="00:00";
+  el("durationBar").style.width="0%";
+  el("remaining").textContent="10:00 disponibles";
+  el("send").classList.remove("ready");el("saveSheets").disabled=true;
+  el("recorder").classList.remove("recording");
+  el("recordTitle").textContent="Listo para grabar";
+  el("recordSub").textContent="Usa el micrófono de tu dispositivo";
+  el("record").disabled=false;el("stop").disabled=true;el("discard").disabled=true;el("send").disabled=true
+}
+function mime(){let types=["audio/webm;codecs=opus","audio/webm","audio/mp4"];return types.find(t=>MediaRecorder.isTypeSupported(t))||""}
+
+el("record").onclick=async()=>{
+  // Una nueva grabación reemplaza cualquier audio y transcripción anteriores.
+  blob=null;chunks=[];el("send").disabled=true;el("send").classList.remove("ready");
+  el("transcript").value="";el("copy").disabled=true;el("saveSheets").disabled=true;
+  el("timer").textContent="00:00";el("durationBar").style.width="0%";
+  el("remaining").textContent="10:00 disponibles";
+  if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){status("Este navegador no permite grabar audio. Prueba Chrome, Edge o Safari reciente.","error");return}
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:true});
+    let mt=mime();
+    recorder=new MediaRecorder(stream,mt?{mimeType:mt}:undefined);
+    chunks=[];
+    recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data)};
+    recorder.onstop=()=>{
+      stopTimer(); // detiene el cronómetro al terminar la grabación
+      const elapsed=Math.min(Date.now()-start,600000);
+      el("timer").textContent=fmt(elapsed);
+      el("durationBar").style.width=(elapsed/600000*100)+"%";
+      el("remaining").textContent=fmt(Math.max(0,600000-elapsed))+" restantes";
+      el("recorder").classList.remove("recording");
+      blob=new Blob(chunks,{type:recorder.mimeType||mt||"audio/webm"});
+      stopTracks();
+      el("recordTitle").textContent="Grabación lista";
+      el("recordSub").textContent="Puedes enviarla a transcripción";
+      el("record").disabled=false;el("stop").disabled=true;el("discard").disabled=false;
+      el("send").disabled=!blob.size;
+      el("send").classList.toggle("ready",!!blob.size);
+      status("Grabación terminada. Pulsa “Transcribir audio”.")
+    };
+    recorder.start();
+    start=Date.now();
+    el("recorder").classList.add("recording");
+    el("recordTitle").textContent="Grabando…";
+    el("recordSub").textContent="Habla con claridad";
+    el("record").disabled=true;el("stop").disabled=false;el("discard").disabled=true;
+    status("Grabación en curso.");
+    stopTimer();
+    tick=setInterval(()=>{
+      let elapsed=Date.now()-start;
+      el("timer").textContent=fmt(elapsed);
+      el("durationBar").style.width=(Math.min(elapsed,600000)/600000*100)+"%";
+      el("remaining").textContent=fmt(Math.max(0,600000-elapsed))+" restantes";
+      if(elapsed>=600000&&recorder?.state==="recording")recorder.stop()
+    },250)
+  }catch(e){stopTracks();stopTimer();status("No se pudo acceder al micrófono. Revisa los permisos del navegador.","error")}
+};
+
+el("stop").onclick=()=>{
+  if(recorder?.state==="recording"){stopTimer();recorder.stop()}
+};
+el("discard").onclick=()=>{
+  if(recorder?.state==="recording"){recorder.onstop=null;recorder.stop()}
+  reset();status("Grabación descartada.")
+};
+
+el("send").onclick=async()=>{
+  if(!blob)return;
+  el("send").disabled=true;el("record").disabled=true;el("discard").disabled=true;
+  status("Transcribiendo audio…");
+  try{
+    let form=new FormData(),ext=blob.type.includes("mp4")?"m4a":"webm";
+    form.append("audio",blob,"dictado."+ext);
+    let response=await fetch("/api/transcribe",{method:"POST",body:form}),data=await response.json().catch(()=>({}));
+    if(!response.ok)throw Error(data.detail||"No fue posible completar la transcripción.");
+    el("transcript").value=data.transcript||"";
+    el("copy").disabled=!el("transcript").value.trim();
+    el("saveSheets").disabled=!el("transcript").value.trim();
+    status("Transcripción lista. Revísala y corrige cualquier término antes de usarla.","success")
+  }catch(e){status(e.message||"Ocurrió un error al transcribir.","error")}
+  finally{el("send").disabled=!blob;el("record").disabled=false;el("discard").disabled=!blob}
+};
+
+el("copy").onclick=async()=>{
+  let value=el("transcript").value;if(!value.trim())return;
+  try{await navigator.clipboard.writeText(value);status("Transcripción copiada al portapapeles.","success")}
+  catch(e){el("transcript").select();status("Seleccionamos el texto. Usa Ctrl+C o Cmd+C para copiarlo.")}
+};
+el("transcript").oninput=()=>{const hasText=!!el("transcript").value.trim();el("copy").disabled=!hasText;el("saveSheets").disabled=!hasText};
+
+el("saveSheets").onclick=async()=>{
+  const transcript=el("transcript").value.trim();if(!transcript)return;
+  el("saveSheets").disabled=true;
+  status("Guardando dictado en Google Sheets…");
+  try{
+    const response=await fetch("/api/save-transcript",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({transcript})});
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw Error(data.detail||"No fue posible guardar el dictado.");
+    status("Dictado guardado en Google Sheets. Ya puedes consultarlo desde el computador.","success");
+  }catch(e){status(e.message||"Ocurrió un error al guardar el dictado.","error");}
+  finally{el("saveSheets").disabled=!el("transcript").value.trim()}
+};
+const manualDialog=el("manualDialog");
+el("openManual").onclick=()=>manualDialog.showModal();
+el("closeManual").onclick=()=>manualDialog.close();
+manualDialog.addEventListener("click",event=>{if(event.target===manualDialog)manualDialog.close()});
+window.addEventListener("beforeunload",stopTracks);
+</script></body></html>
